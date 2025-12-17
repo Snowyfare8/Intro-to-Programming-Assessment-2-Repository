@@ -150,27 +150,40 @@ class vending_display(ctk.CTkFrame):
 
 # selection mechanism for choosing and buying items
 class vending_selector(ctk.CTkFrame):
-    def __init__(self, master_frame, **kwargs):
+    def __init__(self, master_frame, dispenser_state=None,  **kwargs):
         super().__init__(master_frame, **kwargs)
-        
-        def get_product_id(product_id):
-            key = str(product_id).upper().strip()
-            return vm_products.get(key)
 
+        # connect to dispenser's StringVar if provided
+        if dispenser_state is not None:
+            self.dispenser_state = dispenser_state
+        else:
+            self.dispenser_state = tk.StringVar(value = "No item purchased yet.")
+
+        # This function gets the ID for the user input and returns as a key.
+        def get_product_id(product_id):
+            id = str(product_id).upper().strip()
+            return vm_products.get(id)
+
+        # This Function gets the number from user's input and saves selection.
         def select_product_id():
-            pid = id_var.get()
-            sel = get_product_id(pid)
+            prod_id = id_var.get()
+            select = get_product_id(prod_id)
             id_var.set("")
-            if sel:
-                status = f"{sel['name']} — ${sel['price']:.2f}"
-                self.result_label.configure(text=status)
+
+            if select:
+                self.current_select = select
+                receipt = f"{select['name']} — ${select['price']:.2f}"
+                self.result_label.configure(text=receipt)
+                return select
             else:
-                status = "Product not found"
-                self.result_label.configure(text=status)
+                self.current_select = None
+                receipt = "Product not found"
+                self.result_label.configure(text=receipt)
         
         id_var = tk.StringVar()
         self.entry = ctk.CTkEntry(self, textvariable = id_var)
 
+        # Button GUI
         self.button1 = ctk.CTkButton(self, text = "1", command = lambda:self.entry.insert('end', '1'))
         self.button2 = ctk.CTkButton(self, text = "2", command = lambda:self.entry.insert('end', '2'))
         self.button3 = ctk.CTkButton(self, text = "3", command = lambda:self.entry.insert('end', '3'))
@@ -187,6 +200,7 @@ class vending_selector(ctk.CTkFrame):
         self.button_ok = ctk.CTkButton(self, text = "Ok", command = select_product_id)
         self.button_del = ctk.CTkButton(self, text = "X", command = lambda:self.entry.delete(0, 'end'))
 
+        # Button configuration
         self.button1.configure(height = 25, width = 70)
         self.button2.configure(height = 25, width = 70)
         self.button3.configure(height = 25, width = 70)
@@ -203,6 +217,7 @@ class vending_selector(ctk.CTkFrame):
         self.button_ok.configure(height = 25, width = 70)
         self.button_del.configure(height = 25, width = 70) 
 
+        # Button gridding
         self.entry.grid(row = 4, column = 1, padx = 2, pady = 2)
 
         self.button1.grid(row = 0, column = 0, padx = 2, pady = 5, sticky = "s")
@@ -221,23 +236,44 @@ class vending_selector(ctk.CTkFrame):
         self.button_ok.grid(row = 3, column = 0, padx = 2, pady = 5, sticky = "s")
         self.button_del.grid(row = 3, column = 2, padx = 2, pady = 5, sticky = "s") 
 
-        def purchase_func():
-            self.result_label.configure(text = "purchase successful!")
+        # Wallet Value
+        self.balance = 150.00
+
+        # Purchasing Function
+        def purchase_func ():
+            select = getattr(self, 'current_select', None)
+            
+            price = select.get('price', 0)
+            stock = select.get('stock', 1)
+
+            if stock <= 0:
+                self.result_label.configure(text = "Out of stock")
+                return
+            
+            if self.balance < price:
+                self.result_label.configure(text = "Insufficient credit")
+                return
+            
+
+            self.balance -= price
+            select['stock'] = stock - 1
+            self.wallet.configure(text = f"Credit Balance: {self.balance:.2f}")
             self.dispenser_state.set("Collect your item here.")
-            return self.dispenser_state.get()
-            
-            
+            self.result_label.configure(text = "Purchase successful.")
+
+            # clear selection
+            self.current_select = None
+            return
+        
+        # wallet, receipt, and purchase button
+        wallet_label = f"{'Balance: '}{self.balance:.2f}"
         self.result_label = ctk.CTkLabel(self, text = "")
-        self.result_label.grid(row = 8, column = 1, padx = 2, pady = 2)
-
-        credit_card = 150
-
-        wallet_label = f"{'Credit Balance: '}{int(credit_card)}"
         self.wallet = ctk.CTkLabel(self, text = wallet_label)
-        self.vert_pad = ctk.CTkLabel(self, text = "")
-        self.receipt = ctk.CTkLabel(self, text = "placeholder")
+        self.vert_pad = ctk.CTkLabel(self, textvariable = "")
         self.buy = ctk.CTkButton(self, text = "Purchase", command = purchase_func)
 
+        # gridding
+        self.result_label.grid(row = 8, column = 1, padx = 2, pady = 2)
         self.vert_pad.grid(row = 5, column = 1, padx = 0, pady = 5, sticky = "nsew")
         self.wallet.grid(row = 6, column = 1, padx = 0, pady = 5, sticky = "nsew")
         self.buy.grid(row = 7, column = 1, padx = 0, pady = 5, sticky = "nsew")
@@ -250,16 +286,21 @@ class vending_dispenser(ctk.CTkFrame):
     def __init__(self, master_frame, **kwargs):
         super().__init__(master_frame, **kwargs)
 
+
+        # Resets the self.dispenser button and self.result_label label so that it appears there is nothing there.
         def collect_item():
             self.dispenser_state.set("No item purchased yet.")
             return self.dispenser_state.get()
         
-        self.dispenser_state = tk.StringVar("No item purchased yet.")
+        # The value and the button
+        self.dispenser_state = tk.StringVar(value = "No item purchased yet.")
         self.dispenser = ctk.CTkButton(self, textvariable = self.dispenser_state, command = collect_item)
 
+        # gridding
         self.dispenser.grid(row = 0, column = 0, padx = 115, pady = 75, sticky = "nsew")
 
-        collect_item(self)
+        # run to set up default value
+        collect_item()
 
 # lays out all the frames in the window
 class App(ctk.CTk):
@@ -274,11 +315,11 @@ class App(ctk.CTk):
         self.display = vending_display(self.Master_Frame)
         self.display.grid(row = 0, column = 0, sticky = "nw")
 
-        self.selector = vending_selector(self.Master_Frame)
-        self.selector.grid(row = 0, column = 1, sticky = "nse")
-
         self.dispenser = vending_dispenser(self.Master_Frame)
         self.dispenser.grid(row = 1, column = 0, sticky = "sew")
+
+        self.selector = vending_selector(self.Master_Frame, dispenser_state=self.dispenser.dispenser_state)
+        self.selector.grid(row = 0, column = 1, sticky = "nse")
 
 app = App()
 app.mainloop()
