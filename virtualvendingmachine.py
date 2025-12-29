@@ -161,7 +161,7 @@ class vending_selector(ctk.CTkFrame):
 
         # This function gets the ID for the user input and returns as a key.
         def get_product_id(product_id):
-            id = str(product_id).upper().strip()
+            id = str(product_id)
             return vm_products.get(id)
 
         # This Function gets the number from user's input and saves selection.
@@ -323,3 +323,4 @@ class App(ctk.CTk):
 
 app = App()
 app.mainloop()
+
