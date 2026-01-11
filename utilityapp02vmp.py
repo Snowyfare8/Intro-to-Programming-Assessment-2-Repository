@@ -1,3 +1,4 @@
+# Vending Machine Products
 vm_products = {
    "100": {"name":"Cookie", "price":2, "stock": 5},
    "101": {"name":"Spicy Potato Chips", "price":4, "stock": 5},
@@ -14,4 +15,5 @@ vm_products = {
    "112": {"name":"Bottled Water", "price":1, "stock": 5},
    "113": {"name":"Packaged BLT Sandwich", "price":1, "stock": 5},
    "114": {"name":"Fruit Cake Slice", "price":3, "stock": 5} 
+
 }
