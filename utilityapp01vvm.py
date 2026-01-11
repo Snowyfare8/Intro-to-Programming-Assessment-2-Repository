@@ -14,7 +14,7 @@ class vending_display_class(ctk.CTkFrame):
     def __init__(self, master_frame, **kwargs):
         super().__init__(master_frame, **kwargs)
 
-        # Static products display
+        # Define product variables
         product_name_1 = "Cookie"
         product_id_price_1 = "100 - 2.00"
         
@@ -60,7 +60,7 @@ class vending_display_class(ctk.CTkFrame):
         product_name_15 = "Fruit Cake Slice"
         product_id_price_15 = "114 - 2.00"
 
-
+        # Product display labels 
         self.display_name_1 = ctk.CTkLabel(self, text = product_name_1)
         self.display_idprice_1 = ctk.CTkLabel(self, text = product_id_price_1)
 
@@ -106,6 +106,7 @@ class vending_display_class(ctk.CTkFrame):
         self.display_name_15 = ctk.CTkLabel(self, text = product_name_15)
         self.display_idprice_15 = ctk.CTkLabel(self, text = product_id_price_15)
 
+        # Gridding
         self.display_name_1.grid(row = 0, column = 0, padx = 5, pady = 2)
         self.display_idprice_1.grid(row = 1, column = 0, padx = 5, pady = 2)
 
@@ -151,12 +152,12 @@ class vending_display_class(ctk.CTkFrame):
         self.display_name_15.grid(row = 8, column = 2, padx = 5, pady = 2)
         self.display_idprice_15.grid(row = 9, column = 2, padx = 5, pady = 2)
 
-# Selection mechanism for choosing and buying items
+# Selection class mechanism for choosing and buying items
 class vending_selector_class(ctk.CTkFrame):
     def __init__(self, master_frame, dispenser_state = None,  **kwargs):
         super().__init__(master_frame, **kwargs)
 
-        # Connect to dispenser's StringVar if provided
+        # Used to define dispenser_state in order to connect purchase_func and self.dispenser
         if dispenser_state is not None:
             self.dispenser_state = dispenser_state
         else:
@@ -167,23 +168,26 @@ class vending_selector_class(ctk.CTkFrame):
             id = str(product_id)
             return vm_products.get(id)
 
-        # This Function gets the number from user's input and saves selection.
+        # This Function gets the number from user's input and saves the selection.
         def select_product_id_func():
             prod_id = id_var.get()
             selection = get_product_id_func(prod_id)
             id_var.set("")
 
+            # If a valid product id selection is detected e.g. 100, it returns the id's respective values: name: Cookie, and price: 2.00
             if selection:
                 self.current_selection = selection
                 receipt = f"{selection['name']} — ${selection['price']:.2f}"
                 self.result_label.configure(text = receipt)
                 return selection
+            
+            # If the product id is invalid e.g. no id for the product such as 115, it returns "Product not found"
             else:
                 self.current_selection = None
                 receipt = "Product not found"
                 self.result_label.configure(text = receipt)
         
-        # Defines id variable as string variable
+        # Defines id variable as a tkinter string variable
         id_var = tk.StringVar()
         
         # Entry GUI
@@ -206,7 +210,7 @@ class vending_selector_class(ctk.CTkFrame):
         self.button_ok = ctk.CTkButton(self, text = "Ok", command = select_product_id_func)
         self.button_del = ctk.CTkButton(self, text = "X", command = lambda:self.entry.delete(0, 'end'))
 
-        # Button configuration
+        # Button dimensions configuration
         self.button1.configure(height = 25, width = 70)
         self.button2.configure(height = 25, width = 70)
         self.button3.configure(height = 25, width = 70)
@@ -249,6 +253,7 @@ class vending_selector_class(ctk.CTkFrame):
         def purchase_func ():
             selection = getattr(self, 'current_selection', None)
             
+            # Defines price and stock variables, then gets the price's value and 1 value of stock (-1)
             price = selection.get('price', 0)
             stock = selection.get('stock', 1)
 
