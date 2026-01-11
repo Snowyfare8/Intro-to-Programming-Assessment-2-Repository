@@ -250,7 +250,7 @@ class vending_selector_class(ctk.CTkFrame):
         self.balance = 150.00
 
         # Purchasing Function
-        def purchase_func ():
+        def purchase_product_func ():
             selection = getattr(self, 'current_selection', None)
             
             # Defines price and stock variables, then gets the price's value and 1 value of stock (-1)
@@ -285,7 +285,7 @@ class vending_selector_class(ctk.CTkFrame):
         self.result_label = ctk.CTkLabel(self, text = "")
         self.wallet = ctk.CTkLabel(self, text = wallet_label)
         self.vert_pad = ctk.CTkLabel(self, textvariable = "")
-        self.buy = ctk.CTkButton(self, text = "Purchase", command = purchase_func)
+        self.buy = ctk.CTkButton(self, text = "Purchase", command = purchase_product_func)
 
         # Gridding
         self.result_label.grid(row = 8, column = 1, padx = 2, pady = 2)
@@ -341,6 +341,7 @@ class App(ctk.CTk):
 
 app = App()
 app.mainloop()
+
 
 
 
