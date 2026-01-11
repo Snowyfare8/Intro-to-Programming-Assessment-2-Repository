@@ -156,6 +156,7 @@ class vending_display_class(ctk.CTkFrame):
 class vending_selector_class(ctk.CTkFrame):
     def __init__(self, master_frame, dispenser_state = None,  **kwargs):
         super().__init__(master_frame, **kwargs)
+        
        # Used to define the default value of dispenser_state in order to connect purchase_func and self.dispenser
         if dispenser_state is not None:
             self.dispenser_state = dispenser_state
@@ -340,4 +341,5 @@ class App(ctk.CTk):
 
 app = App()
 app.mainloop()
+
 
