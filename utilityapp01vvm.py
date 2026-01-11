@@ -14,6 +14,8 @@ class vending_display_class(ctk.CTkFrame):
     def __init__(self, master_frame_class, **kwargs):
         super().__init__(master_frame_class, **kwargs)
 
+        # Static products display
+
         # Define label variables
         product_name_1 = "Cookie"
         product_id_price_1 = "100 - 2.00"
@@ -154,14 +156,8 @@ class vending_display_class(ctk.CTkFrame):
 
 # Selection mechanism for choosing and buying items
 class vending_selector_class(ctk.CTkFrame):
-    def __init__(self, master_frame_class, dispenser_state = None,  **kwargs):
+    def __init__(self, master_frame_class,  **kwargs):
         super().__init__(master_frame_class, **kwargs)
-
-        # Connect to dispenser's StringVar if provided
-        if dispenser_state is None:
-            self.dispenser_state = tk.StringVar(value = "No item purchased yet.")
-        else:
-            self.dispenser_state = dispenser_state
 
         # This function gets the ID for the user input and returns as a key.
         def get_product_id_func(product_id):
@@ -171,18 +167,18 @@ class vending_selector_class(ctk.CTkFrame):
         # This Function gets the number from user's input and saves selection.
         def select_product_id_func():
             prod_id = id_var.get()
-            selection = get_product_id_func(prod_id)
+            select = get_product_id_func(prod_id)
             id_var.set("")
 
-            if selection:
-                self.current_selection = selection
-                receipt = f"{selection['name']} — ${selection['price']:.2f}"
-                self.result_label.configure(text = receipt)
-                return selection
+            if select:
+                self.current_select = select
+                receipt = f"{select['name']} — ${select['price']:.2f}"
+                self.result_label.configure(text=receipt)
+                return select
             else:
-                self.current_selection = None
+                self.current_select = None
                 receipt = "Product not found"
-                self.result_label.configure(text = receipt)
+                self.result_label.configure(text=receipt)
         
         # Defines id variable as string variable
         id_var = tk.StringVar()
@@ -246,15 +242,15 @@ class vending_selector_class(ctk.CTkFrame):
         # Wallet default value
         self.balance = 150.00
 
-        # Purchasing function
+        # Purchasing Function
         def purchase_func ():
-            selection = getattr(self, 'current_selection', None)
+            select = getattr(self, 'current_select', None)
             
-            price = selection.get('price', 0)
-            stock = selection.get('stock', 1)
+            price = select.get('price', 0)
+            stock = select.get('stock', 1)
 
-            # Returns "Out of stock" if stock ran out
-            if stock == 0:
+            # Returns "Out of Stock" if stock ran out
+            if stock <= 0:
                 self.result_label.configure(text = "Out of stock")
                 return
             
@@ -265,7 +261,7 @@ class vending_selector_class(ctk.CTkFrame):
             
             # Deducts balance and product stock upon purchase
             self.balance -= price
-            selection['stock'] = stock - 1
+            select['stock'] = stock - 1
 
             # Sets display of labels
             self.wallet.configure(text = f"Credit Balance: {self.balance:.2f}")
@@ -328,7 +324,7 @@ class App(ctk.CTk):
         self.vending_display_frame = vending_display_class(self.master_frame)
         self.vending_display_frame.grid(row = 0, column = 0, sticky = "nw")
 
-        self.vending_selector_frame = vending_selector_class(self.master_frame, dispenser_state = self.dispenser_state)
+        self.vending_selector_frame = vending_selector_class(self.master_frame)
         self.vending_selector_frame.grid(row = 0, column = 1, sticky = "nse")
 
         self.vending_dispenser_frame = vending_dispenser_class(self.master_frame)
