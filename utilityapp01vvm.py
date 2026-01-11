@@ -5,14 +5,14 @@ import time as t
 from utilityapp02vmp import vm_products
 
 # Master frame class, for creating general layout
-class master_frame(ctk.CTkFrame):
+class master_frame_class(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
 
 # Displays products, prices, and their ids
-class vending_display(ctk.CTkFrame):
-    def __init__(self, master_frame, **kwargs):
-        super().__init__(master_frame, **kwargs)
+class vending_display_class(ctk.CTkFrame):
+    def __init__(self, master_frame_class, **kwargs):
+        super().__init__(master_frame_class, **kwargs)
 
         # Static products display
 
@@ -155,9 +155,9 @@ class vending_display(ctk.CTkFrame):
         self.display_idprice_15.grid(row = 9, column = 2, padx = 5, pady = 2)
 
 # Selection mechanism for choosing and buying items
-class vending_selector(ctk.CTkFrame):
-    def __init__(self, master_frame, dispenser_state=None,  **kwargs):
-        super().__init__(master_frame, **kwargs)
+class vending_selector_class(ctk.CTkFrame):
+    def __init__(self, master_frame_class, dispenser_state=None,  **kwargs):
+        super().__init__(master_frame_class, **kwargs)
 
         # Connect to dispenser's StringVar if provided
         if dispenser_state is not None:
@@ -166,14 +166,14 @@ class vending_selector(ctk.CTkFrame):
             self.dispenser_state = tk.StringVar(value = "No item purchased yet.")
 
         # This function gets the ID for the user input and returns as a key.
-        def get_product_id(product_id):
+        def get_product_id_func(product_id):
             id = str(product_id)
             return vm_products.get(id)
 
         # This Function gets the number from user's input and saves selection.
-        def select_product_id():
+        def select_product_id_func():
             prod_id = id_var.get()
-            select = get_product_id(prod_id)
+            select = get_product_id_func(prod_id)
             id_var.set("")
 
             if select:
@@ -206,7 +206,7 @@ class vending_selector(ctk.CTkFrame):
         self.button9 = ctk.CTkButton(self, text = "9", command = lambda:self.entry.insert('end', '9'))
 
         self.button0 = ctk.CTkButton(self, text = "0", command = lambda:self.entry.insert('end', '0'))
-        self.button_ok = ctk.CTkButton(self, text = "Ok", command = select_product_id)
+        self.button_ok = ctk.CTkButton(self, text = "Ok", command = select_product_id_func)
         self.button_del = ctk.CTkButton(self, text = "X", command = lambda:self.entry.delete(0, 'end'))
 
         # Button configuration
@@ -296,24 +296,24 @@ class vending_selector(ctk.CTkFrame):
         t.sleep(2)
 
 # Dispenses purchased items
-class vending_dispenser(ctk.CTkFrame):
-    def __init__(self, master_frame, **kwargs):
-        super().__init__(master_frame, **kwargs)
+class vending_dispenser_class(ctk.CTkFrame):
+    def __init__(self, master_frame_class, **kwargs):
+        super().__init__(master_frame_class, **kwargs)
 
         # Resets the self.dispenser button and self.result_label label so that it appears there is nothing there
-        def collect_item():
+        def collect_item_func():
             self.dispenser_state.set("No item purchased yet.")
             return self.dispenser_state.get()
         
         # The value and the button
         self.dispenser_state = tk.StringVar(value = "No item purchased yet.")
-        self.dispenser = ctk.CTkButton(self, textvariable = self.dispenser_state, command = collect_item)
+        self.dispenser = ctk.CTkButton(self, textvariable = self.dispenser_state, command = collect_item_func)
 
         # Gridding
         self.dispenser.grid(row = 0, column = 0, padx = 115, pady = 75, sticky = "nsew")
 
         # Calls function to set up default state
-        collect_item()
+        collect_item_func()
 
 # Lays out all the frames in the window
 class App(ctk.CTk):
@@ -323,18 +323,18 @@ class App(ctk.CTk):
         self.title("Vending Machine Simulator")
 
         # First "layer" of frames, which the second "layer" will be layed on top of
-        self.Master_Frame = master_frame(master = self, height = 2700, width = 2700, corner_radius = 0, fg_color = "transparent")
-        self.Master_Frame.grid(row = 0, column = 0, sticky = "nsew")
+        self.master_frame = master_frame_class(master = self, height = 2700, width = 2700, corner_radius = 0, fg_color = "transparent")
+        self.master_frame.grid(row = 0, column = 0, sticky = "nsew")
 
         # Second "layer" of frames, these frames contain the GUI widgets
-        self.display = vending_display(self.Master_Frame)
-        self.display.grid(row = 0, column = 0, sticky = "nw")
+        self.vending_display_frame = vending_display_class(self.Master_Frame)
+        self.vending_display_frame.grid(row = 0, column = 0, sticky = "nw")
 
-        self.dispenser = vending_dispenser(self.Master_Frame)
-        self.dispenser.grid(row = 1, column = 0, sticky = "sew")
+        self.vending_selector_frame = vending_selector_class(self.Master_Frame, dispenser_state=self.dispenser.dispenser_state)
+        self.vending_selector_frame.grid(row = 0, column = 1, sticky = "nse")
 
-        self.selector = vending_selector(self.Master_Frame, dispenser_state=self.dispenser.dispenser_state)
-        self.selector.grid(row = 0, column = 1, sticky = "nse")
+        self.vending_dispenser_frame = vending_dispenser_class(self.Master_Frame)
+        self.vending_dispenser_frame.grid(row = 1, column = 0, sticky = "sew")
 
 app = App()
 app.mainloop()
