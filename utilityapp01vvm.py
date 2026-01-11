@@ -163,7 +163,7 @@ class vending_selector_class(ctk.CTkFrame):
         else:
             self.dispenser_state = tk.StringVar(value = "No item purchased yet.")
 
-        # This function gets the ID for the user input and returns as a key.
+        # This function gets the ID from the user input and returns it as a key.
         def get_product_id_func(product_id):
             id = str(product_id)
             return vm_products.get(id)
@@ -341,5 +341,6 @@ class App(ctk.CTk):
 
 app = App()
 app.mainloop()
+
 
 
