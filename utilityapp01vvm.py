@@ -4,15 +4,17 @@ import customtkinter as ctk
 import time as t
 from utilityapp02vmp import vm_products
 
-# master frame, for creating general layout
+# Master frame class, for creating general layout
 class master_frame(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
 
-# displays products, prices, and their ids
+# Displays products, prices, and their ids
 class vending_display(ctk.CTkFrame):
     def __init__(self, master_frame, **kwargs):
         super().__init__(master_frame, **kwargs)
+
+        # Static products display
         product_name_1 = "Cookie"
         product_id_price_1 = "100 - 2.00"
         
@@ -148,12 +150,12 @@ class vending_display(ctk.CTkFrame):
         self.display_name_15.grid(row = 8, column = 2, padx = 5, pady = 2)
         self.display_idprice_15.grid(row = 9, column = 2, padx = 5, pady = 2)
 
-# selection mechanism for choosing and buying items
+# Selection mechanism for choosing and buying items
 class vending_selector(ctk.CTkFrame):
     def __init__(self, master_frame, dispenser_state=None,  **kwargs):
         super().__init__(master_frame, **kwargs)
 
-        # connect to dispenser's StringVar if provided
+        # Connect to dispenser's StringVar if provided
         if dispenser_state is not None:
             self.dispenser_state = dispenser_state
         else:
@@ -180,7 +182,10 @@ class vending_selector(ctk.CTkFrame):
                 receipt = "Product not found"
                 self.result_label.configure(text=receipt)
         
+        # Defines id variable as string variable
         id_var = tk.StringVar()
+        
+        # Entry GUI
         self.entry = ctk.CTkEntry(self, textvariable = id_var)
 
         # Button GUI
@@ -217,7 +222,7 @@ class vending_selector(ctk.CTkFrame):
         self.button_ok.configure(height = 25, width = 70)
         self.button_del.configure(height = 25, width = 70) 
 
-        # Button gridding
+        # Button and entry gridding
         self.entry.grid(row = 4, column = 1, padx = 2, pady = 2)
 
         self.button1.grid(row = 0, column = 0, padx = 2, pady = 5, sticky = "s")
@@ -236,7 +241,7 @@ class vending_selector(ctk.CTkFrame):
         self.button_ok.grid(row = 3, column = 0, padx = 2, pady = 5, sticky = "s")
         self.button_del.grid(row = 3, column = 2, padx = 2, pady = 5, sticky = "s") 
 
-        # Wallet Value
+        # Wallet default value
         self.balance = 150.00
 
         # Purchasing Function
@@ -246,48 +251,52 @@ class vending_selector(ctk.CTkFrame):
             price = select.get('price', 0)
             stock = select.get('stock', 1)
 
+            # Returns "Out of Stock" if stock ran out
             if stock <= 0:
                 self.result_label.configure(text = "Out of stock")
                 return
             
+            # Returns "Insufficient balance" if user runs out of money/credit
             if self.balance < price:
-                self.result_label.configure(text = "Insufficient credit")
+                self.result_label.configure(text = "Insufficient balance")
                 return
             
-
+            # Deducts balance and product stock upon purchase
             self.balance -= price
             select['stock'] = stock - 1
+
+            # Sets display of labels
             self.wallet.configure(text = f"Credit Balance: {self.balance:.2f}")
             self.dispenser_state.set("Collect your item here.")
             self.result_label.configure(text = "Purchase successful.")
 
-            # clear selection
+            # Clears selection
             self.current_select = None
             return
         
-        # wallet, receipt, and purchase button
+        # Wallet label, receipt label, and purchase button
         wallet_label = f"{'Balance: '}{self.balance:.2f}"
         self.result_label = ctk.CTkLabel(self, text = "")
         self.wallet = ctk.CTkLabel(self, text = wallet_label)
         self.vert_pad = ctk.CTkLabel(self, textvariable = "")
         self.buy = ctk.CTkButton(self, text = "Purchase", command = purchase_func)
 
-        # gridding
+        # Gridding
         self.result_label.grid(row = 8, column = 1, padx = 2, pady = 2)
         self.vert_pad.grid(row = 5, column = 1, padx = 0, pady = 5, sticky = "nsew")
         self.wallet.grid(row = 6, column = 1, padx = 0, pady = 5, sticky = "nsew")
         self.buy.grid(row = 7, column = 1, padx = 0, pady = 5, sticky = "nsew")
 
+        # Updates GUI
         self.update_idletasks()
         t.sleep(2)
 
-# dispenses purchased items
+# Dispenses purchased items
 class vending_dispenser(ctk.CTkFrame):
     def __init__(self, master_frame, **kwargs):
         super().__init__(master_frame, **kwargs)
 
-
-        # Resets the self.dispenser button and self.result_label label so that it appears there is nothing there.
+        # Resets the self.dispenser button and self.result_label label so that it appears there is nothing there
         def collect_item():
             self.dispenser_state.set("No item purchased yet.")
             return self.dispenser_state.get()
@@ -296,22 +305,24 @@ class vending_dispenser(ctk.CTkFrame):
         self.dispenser_state = tk.StringVar(value = "No item purchased yet.")
         self.dispenser = ctk.CTkButton(self, textvariable = self.dispenser_state, command = collect_item)
 
-        # gridding
+        # Gridding
         self.dispenser.grid(row = 0, column = 0, padx = 115, pady = 75, sticky = "nsew")
 
-        # run to set up default value
+        # Calls function to set up default state
         collect_item()
 
-# lays out all the frames in the window
+# Lays out all the frames in the window
 class App(ctk.CTk):
     def __init__(self):    
         super().__init__()
     
         self.title("Vending Machine Simulator")
 
+        # First "layer" of frames, which the second "layer" will be layed on top of
         self.Master_Frame = master_frame(master = self, height = 2700, width = 2700, corner_radius = 0, fg_color = "transparent")
         self.Master_Frame.grid(row = 0, column = 0, sticky = "nsew")
 
+        # Second "layer" of frames, these frames contain the GUI widgets
         self.display = vending_display(self.Master_Frame)
         self.display.grid(row = 0, column = 0, sticky = "nw")
 
