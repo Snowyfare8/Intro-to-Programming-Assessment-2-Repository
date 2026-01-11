@@ -15,6 +15,8 @@ class vending_display(ctk.CTkFrame):
         super().__init__(master_frame, **kwargs)
 
         # Static products display
+
+        # Define label variables
         product_name_1 = "Cookie"
         product_id_price_1 = "100 - 2.00"
         
@@ -60,6 +62,7 @@ class vending_display(ctk.CTkFrame):
         product_name_15 = "Fruit Cake Slice"
         product_id_price_15 = "114 - 2.00"
 
+        # Labels proper
         self.display_name_1 = ctk.CTkLabel(self, text = product_name_1)
         self.display_idprice_1 = ctk.CTkLabel(self, text = product_id_price_1)
 
@@ -105,6 +108,7 @@ class vending_display(ctk.CTkFrame):
         self.display_name_15 = ctk.CTkLabel(self, text = product_name_15)
         self.display_idprice_15 = ctk.CTkLabel(self, text = product_id_price_15)
 
+        # Product label gridding
         self.display_name_1.grid(row = 0, column = 0, padx = 5, pady = 2)
         self.display_idprice_1.grid(row = 1, column = 0, padx = 5, pady = 2)
 
